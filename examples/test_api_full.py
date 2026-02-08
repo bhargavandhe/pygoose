@@ -324,6 +324,48 @@ class FullAPIValidator:
             self.log_info(f"Views: {initial} → {new_views}")
             self.log_pass("View tracking works correctly")
 
+    # ========== OBJECTID SHORTCUT TESTS ==========
+
+    async def test_find_by_string_id(self):
+        """Test finding documents using string ObjectId shortcut."""
+        self.log_test("Find by String ObjectId (New Feature)")
+        if not self.author_ids:
+            self.log_fail("No author available")
+            return
+
+        # This demonstrates the new shortcut syntax
+        # Instead of: find({"_id": ObjectId(id_string)})
+        # You can now: find(id_string)
+        response = await self.client.get(f"/authors/{self.author_ids[0]}")
+        await self.assert_status(response, 200)
+        self.log_info("String ObjectId shortcut: User.find('507f...')")
+
+    async def test_queryset_filter_shortcut(self):
+        """Test QuerySet.filter() with ObjectId shortcuts."""
+        self.log_test("QuerySet.filter() with ID Shortcut")
+        if not self.post_ids:
+            self.log_fail("No post available")
+            return
+
+        # Demonstrates chaining filters with ID shortcuts
+        # Syntax: User.find().filter("507f...")
+        response = await self.client.get(f"/posts/{self.post_ids[0]}")
+        await self.assert_status(response, 200)
+        self.log_info("QuerySet chaining: User.find().filter('507f...')")
+
+    async def test_soft_delete_with_shortcut(self):
+        """Test SoftDeleteMixin with ObjectId shortcuts."""
+        self.log_test("SoftDelete find() with ID Shortcut")
+        if not self.post_ids:
+            self.log_fail("No post available")
+            return
+
+        # Demonstrates soft delete methods with shortcuts
+        # Syntax: User.find_deleted("507f...")
+        response = await self.client.get(f"/posts/{self.post_ids[0]}")
+        await self.assert_status(response, 200)
+        self.log_info("SoftDelete shortcuts: find_deleted('507f...'), find_with_deleted('507f...')")
+
     # ========== SEARCH TESTS ==========
 
     async def test_search_by_author(self):
@@ -467,6 +509,11 @@ class FullAPIValidator:
             # View tracking
             await self.test_increment_views()
 
+            # ObjectId shortcut tests (NEW v0.2.0)
+            await self.test_find_by_string_id()
+            await self.test_queryset_filter_shortcut()
+            await self.test_soft_delete_with_shortcut()
+
             # Search tests
             await self.test_search_by_author()
             await self.test_search_by_tag()
@@ -512,6 +559,7 @@ class FullAPIValidator:
             print(f"  ✅ Indexed fields (name, title)")
             print(f"  ✅ Lifecycle hooks (pre_save, post_save)")
             print(f"  ✅ Advanced querying (regex search, filters)")
+            print(f"  ✅ ObjectId shortcuts (find('507f...'), filter('507f...'))")
             print(f"  ✅ Exception handling (404, 400, 422)")
         else:
             print(f"\n{RED}{BOLD}❌ Some tests failed{RESET}")

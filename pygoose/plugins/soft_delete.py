@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any, Optional
 
+from bson import ObjectId
 from pydantic import Field
 
 
@@ -49,23 +50,68 @@ class SoftDeleteMixin:
         object.__setattr__(self, "deleted_at", None)
 
     @classmethod
-    def find(cls, filter: dict[str, Any] | None = None, **kwargs: Any) -> Any:
-        """Override find to exclude soft-deleted documents by default."""
+    def find(cls, filter: dict[str, Any] | str | ObjectId | None = None, **kwargs: Any) -> Any:
+        """Override find to exclude soft-deleted documents by default.
+
+        Args:
+            filter: MongoDB filter dict, ObjectId string, or ObjectId instance
+            **kwargs: Additional filter criteria
+
+        Examples:
+            User.find("507f1f77bcf86cd799439011")  # Find by ID (non-deleted)
+            User.find({"age": {"$gte": 18}})  # Find by filter (non-deleted)
+        """
+        # Handle string/ObjectId shortcuts
+        if isinstance(filter, str):
+            filter = {"_id": ObjectId(filter)}
+        elif isinstance(filter, ObjectId):
+            filter = {"_id": filter}
+
         merged = {**(filter or {}), **kwargs, "deleted_at": None}
         return super().find(merged)
 
     @classmethod
-    def find_deleted(cls, filter: dict[str, Any] | None = None, **kwargs: Any) -> Any:
-        """Find only soft-deleted documents."""
-        merged = {**(filter or {}), **kwargs, "deleted_at": {"$ne": None}}
+    def find_deleted(cls, filter: dict[str, Any] | str | ObjectId | None = None, **kwargs: Any) -> Any:
+        """Find only soft-deleted documents.
+
+        Args:
+            filter: MongoDB filter dict, ObjectId string, or ObjectId instance
+            **kwargs: Additional filter criteria
+
+        Examples:
+            User.find_deleted("507f1f77bcf86cd799439011")  # Find deleted by ID
+            User.find_deleted({"age": {"$gte": 18}})  # Find deleted by filter
+        """
         from pygoose.core.queryset import QuerySet
 
+        # Handle string/ObjectId shortcuts
+        if isinstance(filter, str):
+            filter = {"_id": ObjectId(filter)}
+        elif isinstance(filter, ObjectId):
+            filter = {"_id": filter}
+
+        merged = {**(filter or {}), **kwargs, "deleted_at": {"$ne": None}}
         return QuerySet(cls, merged)
 
     @classmethod
-    def find_with_deleted(cls, filter: dict[str, Any] | None = None, **kwargs: Any) -> Any:
-        """Find all documents including soft-deleted ones."""
-        merged = {**(filter or {}), **kwargs}
+    def find_with_deleted(cls, filter: dict[str, Any] | str | ObjectId | None = None, **kwargs: Any) -> Any:
+        """Find all documents including soft-deleted ones.
+
+        Args:
+            filter: MongoDB filter dict, ObjectId string, or ObjectId instance
+            **kwargs: Additional filter criteria
+
+        Examples:
+            User.find_with_deleted("507f1f77bcf86cd799439011")  # Find by ID (any)
+            User.find_with_deleted({"age": {"$gte": 18}})  # Find by filter (any)
+        """
         from pygoose.core.queryset import QuerySet
 
+        # Handle string/ObjectId shortcuts
+        if isinstance(filter, str):
+            filter = {"_id": ObjectId(filter)}
+        elif isinstance(filter, ObjectId):
+            filter = {"_id": filter}
+
+        merged = {**(filter or {}), **kwargs}
         return QuerySet(cls, merged)

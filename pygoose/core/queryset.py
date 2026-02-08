@@ -56,9 +56,25 @@ class QuerySet(Generic[T]):
 
     # --- Chainable methods ---
 
-    def filter(self, _filter: FilterSpec | None = None, **kwargs: Any) -> QuerySet[T]:
-        """Add filter conditions. Merges with existing filter."""
+    def filter(self, _filter: FilterSpec | str | ObjectId | None = None, **kwargs: Any) -> QuerySet[T]:
+        """Add filter conditions. Merges with existing filter.
+
+        Args:
+            _filter: MongoDB filter dict, ObjectId string, or ObjectId instance
+            **kwargs: Additional filter criteria
+
+        Examples:
+            User.find().filter("507f1f77bcf86cd799439011")  # Filter by ID string
+            User.find().filter(ObjectId("507f1f77bcf86cd799439011"))  # Filter by ObjectId
+            User.find(age=18).filter({"city": "NYC"})  # Chain filters
+        """
         from pygoose.utils.types import merge_filters
+
+        # Handle string/ObjectId shortcuts
+        if isinstance(_filter, str):
+            _filter = {"_id": ObjectId(_filter)}
+        elif isinstance(_filter, ObjectId):
+            _filter = {"_id": _filter}
 
         merged = merge_filters(self._filter, _filter, **kwargs)
         return self._clone(filter=merged)
