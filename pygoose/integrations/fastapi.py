@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import json
 from contextlib import asynccontextmanager
 from typing import Any, Generic, Optional, TypeVar
 
+from bson import ObjectId
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, create_model
 
 from pygoose.core.connection import connect, disconnect
@@ -12,8 +15,39 @@ from pygoose.utils.pagination import Page
 T = TypeVar("T")
 
 
+class ObjectIDJSONResponse(JSONResponse):
+    """Custom JSONResponse that serializes ObjectId to string.
+
+    This allows FastAPI endpoints to return Pygoose Documents containing
+    raw ObjectId fields without serialization errors.
+    """
+
+    def render(self, content: Any) -> bytes:
+        """Render content to JSON, handling ObjectId serialization."""
+        def default_handler(obj: Any) -> Any:
+            if isinstance(obj, ObjectId):
+                return str(obj)
+            raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
+
+        return json.dumps(content, default=default_handler, separators=(",", ":")).encode("utf-8")
+
+
 def init_app(app: Any, uri: str, alias: str = "default") -> Any:
-    """Wrap a FastAPI app's lifespan to auto-connect/disconnect pygoose."""
+    """Initialize a FastAPI app with Pygoose.
+
+    Sets up:
+    - MongoDB connection/disconnection in app lifespan
+    - Custom JSON encoder for ObjectId serialization
+    - Exception handlers for Pygoose exceptions
+
+    Args:
+        app: FastAPI application instance
+        uri: MongoDB connection URI
+        alias: Connection alias for multi-connection support (default: "default")
+    """
+    # Set custom JSONResponse to handle ObjectId serialization
+    app.default_response_class = ObjectIDJSONResponse
+
     original_lifespan = getattr(app, "router", app).lifespan_context
 
     @asynccontextmanager

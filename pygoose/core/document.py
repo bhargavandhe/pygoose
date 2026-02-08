@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from pygoose.core.queryset import QuerySet
 
 from bson import ObjectId
-from pydantic import BaseModel, Field, PrivateAttr
+from pydantic import BaseModel, Field, PrivateAttr, field_serializer
 from pymongo.asynchronous.collection import AsyncCollection
 
 from pygoose.core.connection import get_database
@@ -78,6 +78,17 @@ class Document(BaseModel):
         ):
             self._dirty_fields.add(name)
         super().__setattr__(name, value)
+
+    @field_serializer("*", mode="plain")
+    def serialize_objectid_fields(self, value: Any) -> Any:
+        """Automatically serialize ObjectId fields to strings.
+
+        This ensures that any raw bson.ObjectId fields are converted to strings
+        during JSON serialization, making them suitable for REST APIs and FastAPI.
+        """
+        if isinstance(value, ObjectId):
+            return str(value)
+        return value
 
     # --- Dirty tracking ---
 
