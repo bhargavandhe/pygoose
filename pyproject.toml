@@ -10,7 +10,7 @@ readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.11"
 authors = [
-    {name = "Bhargav", email = "contact@bhargav.dev"}
+    {name = "Bhargav Andhe", email = "bhargavandhe2310@gmail.com"}
 ]
 keywords = [
     "mongodb",
@@ -48,11 +48,11 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/pygoose"
-Documentation = "https://github.com/yourusername/pygoose/tree/main/docs"
-Repository = "https://github.com/yourusername/pygoose.git"
-"Bug Tracker" = "https://github.com/yourusername/pygoose/issues"
-Changelog = "https://github.com/yourusername/pygoose/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/bhargavandhe/pygoose"
+Documentation = "https://github.com/bhargavandhe/pygoose/tree/main/docs"
+Repository = "https://github.com/bhargavandhe/pygoose.git"
+"Bug Tracker" = "https://github.com/bhargavandhe/pygoose/issues"
+Changelog = "https://github.com/bhargavandhe/pygoose/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 encryption = ["cryptography>=42.0"]
