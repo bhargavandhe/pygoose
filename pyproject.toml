@@ -1,10 +1,10 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [project]
-name = "pygoose"
-version = "0.1.0"
+name = "pygoose-odm"
+version = "0.2.0"
 description = "Async-first MongoDB ODM for Python, powered by Pydantic v2"
 readme = "README.md"
 license = {text = "MIT"}
@@ -45,7 +45,10 @@ classifiers = [
 dependencies = [
     "pymongo>=4.8",
     "pydantic>=2.4",
+    "fastapi>=0.128.4",
     "uvicorn>=0.40.0",
+    "httpx>=0.28.1",
+    "cryptography>=46.0.4",
 ]
 
 [project.urls]
@@ -57,15 +60,7 @@ Changelog = "https://github.com/bhargavandhe/pygoose/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 encryption = ["cryptography>=42.0"]
-fastapi = ["fastapi>=0.100"]
-dev = [
-    "pytest>=8.0",
-    "pytest-asyncio>=0.23,<1.0",
-    "ruff>=0.4",
-    "cryptography>=42.0",
-    "fastapi>=0.100",
-    "httpx>=0.24",
-]
+fastapi = ["fastapi>=0.100", "uvicorn>=0.40"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
@@ -84,8 +79,14 @@ ignore = ["E501"]  # Line length handled by line-length config
 [tool.ruff.lint.isort]
 known-first-party = ["pygoose"]
 
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["pygoose*"]
+
 [dependency-groups]
 dev = [
     "build>=1.4.0",
+    "pytest>=9.0.2",
+    "pytest-asyncio>=1.3.0",
     "twine>=6.2.0",
 ]

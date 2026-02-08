@@ -1,3 +1,5 @@
+__version__ = "0.2.0"
+
 from pygoose.core import (
     Document,
     QuerySet,
@@ -47,6 +49,8 @@ from pygoose.utils import (
 )
 
 __all__ = [
+    # Version
+    "__version__",
     # Core
     "Document",
     "QuerySet",

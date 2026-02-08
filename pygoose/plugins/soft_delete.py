@@ -10,9 +10,21 @@ class SoftDeleteMixin:
     """Mixin that replaces delete() with a soft-delete (sets deleted_at).
 
     Usage: class User(SoftDeleteMixin, Document): ...
+
+    Provides:
+    - deleted_at: Optional[datetime] - timestamp when deleted
+    - deleted: bool - property that returns True if deleted_at is set
+    - delete(): soft delete (sets deleted_at)
+    - restore(): undelete (clears deleted_at)
+    - hard_delete(): permanently remove from database
     """
 
     deleted_at: Optional[datetime] = Field(default=None)
+
+    @property
+    def deleted(self) -> bool:
+        """Check if document is soft-deleted."""
+        return self.deleted_at is not None
 
     async def delete(self) -> None:
         """Soft-delete: set deleted_at instead of removing the document."""

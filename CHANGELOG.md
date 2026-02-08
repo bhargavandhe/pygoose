@@ -5,7 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.0] - 2025-02-08
+## [0.2.0] - 2026-02-08
+
+### Added
+
+- **SoftDeleteMixin Enhancement:**
+  - Added `deleted` boolean property for convenient soft-delete status checking
+  - Returns `True` if document is soft-deleted, `False` otherwise
+
+- **FastAPI Examples:**
+  - `example_fastapi.py` - Basic 14-endpoint blog API showcasing core features (CRUD, references, timestamps, pagination, search)
+  - `example_fastapi_full.py` - Comprehensive 30+ endpoint API demonstrating ALL Pygoose features (encryption, soft delete, audit logging, lifecycle hooks, indexed fields, advanced querying, audit middleware, status workflows)
+  - `FASTAPI_EXAMPLES.md` - Complete guide with feature comparison, installation, quick start, API call examples, and production considerations
+
+- **Test Scripts:**
+  - `test_api_endpoints.py` - 30+ tests validating basic FastAPI example
+  - `test_api_full.py` - 40+ tests covering full-featured example with encryption, soft delete, audit, and hooks
+
+### Changed
+
+- Improved SoftDeleteMixin with dedicated property instead of requiring `deleted_at` null checks
+- Enhanced pyproject.toml with complete PyPI metadata and classifiers
+- Documented build system and tool configurations
+
+### Fixed
+
+- Fixed date typo in v0.1.0 changelog (2025 → 2026)
+- Improved encryption key handling in FastAPI examples (uses fixed dev key instead of random generation)
+- Enhanced error handling and validation in FastAPI examples
+
+---
+
+## [0.1.0] - 2026-02-08
 
 ### Added
 

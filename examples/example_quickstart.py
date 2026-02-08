@@ -13,7 +13,6 @@ Run with: python example_quickstart.py
 """
 
 import asyncio
-from typing import Optional
 
 from pygoose import Document, Ref, connect, disconnect
 
@@ -71,7 +70,7 @@ async def main():
         post = await BlogPost.create(
             title="Getting Started with Pygoose",
             content="Pygoose is an async MongoDB ODM for Python...",
-            author=Ref(Author, author.id),
+            author=author.id,
         )
         print(f"   Created post: {post.title}")
 

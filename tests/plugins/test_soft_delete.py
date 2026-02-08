@@ -44,6 +44,25 @@ class TestSoftDelete:
         results = await SoftUser.find_with_deleted().all()
         assert all(r.id != uid for r in results)
 
+    async def test_deleted_property_false_initially(self, mongo_connection):
+        user = await SoftUser.create(name="Ivy")
+        assert user.deleted is False
+        assert user.deleted_at is None
+
+    async def test_deleted_property_true_after_delete(self, mongo_connection):
+        user = await SoftUser.create(name="Jack")
+        await user.delete()
+        assert user.deleted is True
+        assert user.deleted_at is not None
+
+    async def test_deleted_property_false_after_restore(self, mongo_connection):
+        user = await SoftUser.create(name="Kate")
+        await user.delete()
+        assert user.deleted is True
+        await user.restore()
+        assert user.deleted is False
+        assert user.deleted_at is None
+
     async def test_restore_clears_deleted_at(self, mongo_connection):
         user = await SoftUser.create(name="Heidi")
         await user.delete()
