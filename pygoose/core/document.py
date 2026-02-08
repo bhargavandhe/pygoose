@@ -226,9 +226,25 @@ class Document(BaseModel):
         return doc
 
     @classmethod
-    async def find_one(cls, filter: FilterSpec | None = None, **kwargs: Any) -> Self | None:
-        """Find a single document matching the filter."""
+    async def find_one(cls, filter: FilterSpec | str | ObjectId | None = None, **kwargs: Any) -> Self | None:
+        """Find a single document matching the filter.
+
+        Args:
+            filter: MongoDB filter dict, ObjectId string, or ObjectId instance
+            **kwargs: Additional filter criteria
+
+        Examples:
+            await User.find_one("507f1f77bcf86cd799439011")  # Find by ID string
+            await User.find_one(ObjectId("507f1f77bcf86cd799439011"))  # Find by ObjectId
+            await User.find_one({"email": "alice@example.com"})  # Find by filter
+        """
         from pygoose.utils.types import merge_filters
+
+        # Handle string/ObjectId shortcuts
+        if isinstance(filter, str):
+            filter = {"_id": ObjectId(filter)}
+        elif isinstance(filter, ObjectId):
+            filter = {"_id": filter}
 
         filter = merge_filters(filter, **kwargs)
         async with track_query("find_one", cls._collection_name, cls.__name__, filter=filter):
@@ -242,18 +258,30 @@ class Document(BaseModel):
         return doc
 
     @classmethod
-    def find(cls, filter: FilterSpec | None = None, **kwargs: Any) -> "QuerySet[Self]":
+    def find(cls, filter: FilterSpec | str | ObjectId | None = None, **kwargs: Any) -> "QuerySet[Self]":
         """Return a QuerySet for fluent query building.
 
         Args:
-            filter: MongoDB filter criteria
+            filter: MongoDB filter dict, ObjectId string, or ObjectId instance
             **kwargs: Additional filter criteria
 
         Returns:
             QuerySet for this document type
+
+        Examples:
+            User.find("507f1f77bcf86cd799439011")  # Find by ID string
+            User.find(ObjectId("507f1f77bcf86cd799439011"))  # Find by ObjectId
+            User.find({"age": {"$gte": 18}})  # Find by filter
+            User.find(age=18)  # Find by kwargs
         """
         from pygoose.core.queryset import QuerySet
         from pygoose.utils.types import merge_filters
+
+        # Handle string/ObjectId shortcuts
+        if isinstance(filter, str):
+            filter = {"_id": ObjectId(filter)}
+        elif isinstance(filter, ObjectId):
+            filter = {"_id": filter}
 
         merged = merge_filters(filter, **kwargs)
         return QuerySet(cls, merged)
