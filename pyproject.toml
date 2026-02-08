@@ -45,6 +45,7 @@ classifiers = [
 dependencies = [
     "pymongo>=4.8",
     "pydantic>=2.4",
+    "uvicorn>=0.40.0",
 ]
 
 [project.urls]
@@ -83,17 +84,8 @@ ignore = ["E501"]  # Line length handled by line-length config
 [tool.ruff.lint.isort]
 known-first-party = ["pygoose"]
 
-[tool.mypy]
-python_version = "3.11"
-check_untyped_defs = true
-disallow_incomplete_defs = true
-no_implicit_optional = true
-pretty = true
-
-[[tool.mypy.overrides]]
-module = "pymongo.*"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "cryptography.*"
-ignore_missing_imports = true
+[dependency-groups]
+dev = [
+    "build>=1.4.0",
+    "twine>=6.2.0",
+]
