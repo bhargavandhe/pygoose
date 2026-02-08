@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-02-08
+
+### Added
+
+- **ObjectId Shortcut Syntax:**
+  - `find(id_string)` and `find(ObjectId)` shortcuts for all find methods
+  - `QuerySet.filter(id_string)` and `filter(ObjectId)` shortcuts
+  - `SoftDeleteMixin.find()`, `find_deleted()`, and `find_with_deleted()` shortcuts
+  - Enables cleaner queries: `User.find("507f...")` instead of `User.find({"_id": ObjectId("507f...")})`
+
+- **Examples Reorganization:**
+  - Moved all examples to dedicated `examples/` directory
+  - Added comprehensive test coverage in `test_api_full.py` demonstrating shortcut features
+
+### Fixed
+
+- **ObjectId JSON Serialization:**
+  - Raw `bson.ObjectId` fields now automatically serialize to strings
+  - Added `@field_serializer("*")` to Document class
+  - Added custom `ObjectIDJSONResponse` in FastAPI integration
+  - Users can now define `field: ObjectId` without serialization errors
+
+### Changed
+
+- Updated `init_app()` to use `ObjectIDJSONResponse` as default response class
+- Enhanced FastAPI integration with automatic ObjectId handling
+
+---
+
 ## [0.2.0] - 2026-02-08
 
 ### Added
