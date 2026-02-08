@@ -426,7 +426,8 @@ async def get_author(
     if not ObjectId.is_valid(author_id):
         raise HTTPException(status_code=400, detail="Invalid author_id format")
 
-    author = await Author.get(ObjectId(author_id))
+    # v0.3.0+: get() now accepts string ObjectId directly
+    author = await Author.get(author_id)  # No ObjectId() conversion needed!
     return AuthorResponse.from_document(author)
 
 
@@ -471,7 +472,8 @@ async def update_author(
     if not ObjectId.is_valid(author_id):
         raise HTTPException(status_code=400, detail="Invalid author_id format")
 
-    author = await Author.get(ObjectId(author_id))
+    # v0.3.0+: String shortcut
+    author = await Author.get(author_id)
 
     if data.name is not None:
         author.name = data.name
@@ -525,7 +527,8 @@ async def delete_author(
 )
 async def create_post(data: BlogPostCreate) -> BlogPostResponse:
     """Create a new blog post with lifecycle hooks and audit logging."""
-    author = await Author.get(ObjectId(data.author_id))
+    # v0.3.0+: String shortcut
+    author = await Author.get(data.author_id)
 
     try:
         post = await BlogPost.create(
@@ -695,8 +698,8 @@ async def restore_post(
     if not ObjectId.is_valid(post_id):
         raise HTTPException(status_code=400, detail="Invalid post_id format")
 
-    # Need to use find_with_deleted to get soft-deleted posts
-    post = await BlogPost.find_with_deleted({"_id": ObjectId(post_id)}).first()
+    # v0.3.0+: find_with_deleted() accepts string shortcut!
+    post = await BlogPost.find_with_deleted(post_id).first()
 
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
@@ -996,7 +999,10 @@ FEATURES DEMONSTRATED:
    - @pre_save: Validation and auto-generation before save
    - @post_save: Logging and side effects after save
 
-✅ QUERY FEATURES:
+✅ QUERY FEATURES (v0.3.0+):
+   - ObjectId shortcuts: find("507f..."), get("507f...")
+   - QuerySet.filter() shortcuts
+   - SoftDeleteMixin shortcuts: find_deleted("507f..."), find_with_deleted("507f...")
    - Advanced filtering with MongoDB operators ($regex, $options)
    - Complex queries with multiple conditions
    - Text search capabilities
